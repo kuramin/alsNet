@@ -12,9 +12,9 @@ def main(in_files, density, kNN, out_folder, thinFactor):
     if not os.path.exists(out_folder):
         os.makedirs(out_folder)
 
-    statlist = [["Filename", "StdDev_Classes", "Ground", "Lo Veg", "Hi Veg"]]
+    statlist = [["Filename", "StdDev_Classes", "Powerline", "Low_vegetation", "Impervious_surfaces", "Car", "Fence/Hedge", "Roof", "Facade", "Shrub", "Tree"]]
     for file_pattern in in_files:
-        print(file_pattern)
+        print('file pattern is', file_pattern)
         for file in glob.glob(file_pattern):
             print("Loading file %s" % file)
             d = dataset.kNNBatchDataset(file=file, k=int(kNN*thinFactor), spacing=spacing)
@@ -27,22 +27,34 @@ def main(in_files, density, kNN, out_folder, thinFactor):
                 out_path = os.path.join(out_folder, out_name)
                 if points_and_features is not None:
                     stats = dataset.ChunkedDataset.chunkStatistics(labels[0], 10)
-                    rest = 1 - (stats['relative'][2] +
+                    print('labels[0] is', labels[0])
+                    print('stats is', stats)
+                    rest = 1 - (stats['relative'][0] +
+                                stats['relative'][1] +
+                                stats['relative'][2] +
                                 stats['relative'][3] +
                                 stats['relative'][4] +
                                 stats['relative'][5] +
                                 stats['relative'][6] +
-                                stats['relative'][9])
-                    perc = [stats['relative'][2],
+                                stats['relative'][7])
+                    perc = [stats['relative'][0],
+                            stats['relative'][1],
+                            stats['relative'][2],
                             stats['relative'][3],
                             stats['relative'][4],
                             stats['relative'][5],
                             stats['relative'][6],
-                            stats['relative'][9],
+                            stats['relative'][7],
                             rest]
                     stddev = np.std(perc) * 100
                     list_entry = [out_name, "%.3f" % stddev, *["%.3f" % p for p in perc]]
                     statlist.append(list_entry)
+                    print('Save points_and_features[0][idx_to_use]', points_and_features[0][idx_to_use], 'with names', names, 'and labels[0][idx_to_use]', labels[0][idx_to_use])
+                    print('sum of', len(points_and_features[0][idx_to_use][:, 3]), 'intensities is', np.sum(points_and_features[0][idx_to_use][:, 3]))
+                    if all(points_and_features[0][idx_to_use][:, 4] == points_and_features[0][idx_to_use][:, 5]):
+                        print('equal')
+                    else:
+                        print('not equal')
                     dataset.Dataset.Save(out_path, points_and_features[0][idx_to_use], names,
                                          labels=labels[0][idx_to_use], new_classes=None)
                 else:  # no more data
@@ -66,3 +78,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.inFiles, args.density, args.kNN, args.outFolder, args.thinFactor)
+
+    #main(['/home/kuramin/Diploma/repos/alsNet/ISPRS_BENCHMARK_DATASETS/Vaihingen/ALS/Vaihingen_Strip_10.LAS'], 15, 200000, '/home/kuramin/Diploma/repos/alsNet/output/Vaihingen/ALS/Vaihingen_Strip_10/', 1)

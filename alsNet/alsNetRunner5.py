@@ -65,9 +65,12 @@ def main(args):
     for line in rest:
         line = line.decode('utf-8')
         linespl = line.split(",")
+        print('linespl is', linespl)
         dataset_path = os.path.join(os.path.dirname(inlist), linespl[0])
+        print('1 dataset path is', dataset_path)
         if float(linespl[1]) < threshold and float(linespl[6]) > args.minBuild:
             datasets.append(dataset_path)
+            print('2 dataset path is', dataset_path)
         all_ds.append(dataset_path)
 
     np.random.shuffle(datasets)
@@ -104,7 +107,7 @@ def main(args):
                                                              len(datasets_th)))
             inst.fit(datasets_th[i*train_size:min((i+1)*train_size, len(datasets_th))], new_session=False)
             logg.save()
-        inst.save_model(os.path.join(args.outDir, 'models', 'model_%d_%d' % (j, i), 'alsNet.ckpt'))
+            inst.save_model(os.path.join(args.outDir, 'models', 'model_%d_%d' % (j, i), 'alsNet.ckpt'))
 
 
 if __name__ == '__main__':

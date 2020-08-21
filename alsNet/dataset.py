@@ -7,10 +7,10 @@ import logging
 
 
 class Dataset():
-    ATTR_EXLUSION_LIST = ['X', 'Y', 'Z', 'raw_classification', 'Classification',
+    ATTR_EXCLUSION_LIST = ['X', 'Y', 'Z', 'raw_classification', 'Classification',
                           'flag_byte', 'scan_angle_rank', 'user_data',
-                          'pt_src_id', 'gps_time']
-    ATTR_EXTRA_LIST = ['num_returns', 'return_num']
+                          'pt_src_id', 'gps_time', 'red', 'green', 'blue']
+    ATTR_EXTRA_LIST = ['return_num', 'num_returns']
 
     def __init__(self, file, load=True, multiclass=True, normalize=False):
         self.file = file
@@ -28,9 +28,11 @@ class Dataset():
         self._classes = file_h.classification
         points = file_h.points['point']
         attr_names = [a for a in points.dtype.names] + Dataset.ATTR_EXTRA_LIST
-        self._features = np.array([getattr(file_h, name) for name in attr_names
-                                   if name not in Dataset.ATTR_EXLUSION_LIST]).transpose()
-        self._names = [name for name in attr_names if name not in Dataset.ATTR_EXLUSION_LIST]
+        print('Dataset.ATTR_EXTRA_LIST is ', Dataset.ATTR_EXTRA_LIST)
+        print('Dataset.ATTR_EXCLUSION_LIST is ', Dataset.ATTR_EXCLUSION_LIST)
+
+        self._features = np.array([getattr(file_h, name) for name in attr_names if name not in Dataset.ATTR_EXCLUSION_LIST]).transpose()
+        self._names = [name for name in attr_names if name not in Dataset.ATTR_EXCLUSION_LIST]
 
         self.xmin = file_h.header.min[0]
         self.ymin = file_h.header.min[1]
